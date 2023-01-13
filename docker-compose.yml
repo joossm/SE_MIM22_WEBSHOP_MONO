@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: BookStoreService
+    build: ./
+    ports:
+      - "8080:8080"
+    environment:
+      DD_DB_HOST: db
+    command: /server
+    depends_on:
+      - db
+
+  db:
+    container_name: BookStoreDatabase
+    image: mysql/mysql-server:5.7
+    ports:
+      - "3306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: books
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+    volumes:
+      - /var/lib/docker/volumes/BookStoreVolume/_dat

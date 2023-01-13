@@ -13,3 +13,5 @@ type User struct {
 	Email       string
 	Phone       string
 }
+
+// Json of User
