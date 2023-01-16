@@ -33,6 +33,10 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		log.Printf("Error creating table: %s", err)
 	}
+	err, _ = db.Exec("CREATE TABLE IF NOT EXISTS `orders` ( `id` int(11) NOT NULL AUTO_INCREMENT, `produktId` varchar(45) DEFAULT NULL, `userId` varchar(45) DEFAULT NULL, `amount` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+	if err != nil {
+		log.Printf("Error creating table: %s", err)
+	}
 
 }
 
