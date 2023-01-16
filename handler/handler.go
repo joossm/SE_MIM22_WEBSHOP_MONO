@@ -209,6 +209,7 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 		responseWriter.Write([]byte("THIS IS A POST REQUEST"))
 	}
 }
+
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case "GET":
@@ -252,6 +253,7 @@ func openDB() *sql.DB {
 	errorHandler(err)
 	return db
 }
+
 func errorHandler(err error) {
 	if err != nil {
 		fmt.Println(err)
