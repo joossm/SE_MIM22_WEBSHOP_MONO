@@ -241,7 +241,7 @@ func openDB() *sql.DB {
 	fmt.Println(db.Stats())
 	fmt.Println("Opening DB 3")
 	db.SetMaxIdleConns(0)
-	db, err = sql.Open("mysql", "root:root@tcp(docker.for.mac.localhost:3306)/books")
+	//db, err = sql.Open("mysql", "root:root@tcp(docker.for.mac.localhost:3306)/books")
 	db.SetMaxIdleConns(0)
 	fmt.Println(db.Ping())
 	fmt.Println(db.Stats())
