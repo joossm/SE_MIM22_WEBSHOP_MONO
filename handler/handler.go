@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"SE_MIM22_WEBSHOP_MONO/model"
@@ -12,6 +13,28 @@ import (
 )
 
 const post = "POST"
+
+func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
+	db := openDB()
+	defer closeDB(db)
+	fmt.Println(db)
+
+	/*fmt.Println("Creating table books...")
+	err, _ := db.Query("USE books")
+	if err != nil {
+		fmt.Printf("Error Use Books: %s", err)
+	}*/
+
+	err, _ := db.Exec("CREATE TABLE IF NOT EXIST `books` ( `Id` int(11) NOT NULL, `Titel` varchar(45) DEFAULT NULL, `EAN` varchar(45) DEFAULT NULL, `Content` varchar(45) DEFAULT NULL, `Price` float DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+	if err != nil {
+		log.Printf("Error creating table: %s", err)
+	}
+	err, _ = db.Exec("CREATE TABLE IF NOT EXIST `users` ( `Id` int(11) NOT NULL, `Username` varchar(45) DEFAULT NULL, `Password` varchar(45) DEFAULT NULL, `Firstname` varchar(45) DEFAULT NULL, `Lastname` varchar(45) DEFAULT NULL, `Housenumber` varchar(45) DEFAULT NULL, `Street` varchar(45) DEFAULT NULL, `Zipcode` varchar(45) DEFAULT NULL, `City` varchar(45) DEFAULT NULL, `Email` varchar(45) DEFAULT NULL, `Phone` varchar(45) DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+	if err != nil {
+		log.Printf("Error creating table: %s", err)
+	}
+
+}
 
 func Login(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
@@ -31,11 +54,13 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 			result, err := db.Query("SELECT Id, Username, Password FROM users WHERE Username = ? AND Password = ?", user.Username, user.Password)
 			errorHandler(err)
 			var users []model.User
-			for result.Next() {
-				var user model.User
-				err = result.Scan(&user.Id, &user.Username, &user.Password)
-				errorHandler(err)
-				users = append(users, user)
+			if result != nil {
+				for result.Next() {
+					var user model.User
+					err = result.Scan(&user.Id, &user.Username, &user.Password)
+					errorHandler(err)
+					users = append(users, user)
+				}
 			}
 			for _, iUser := range users {
 				fmt.Println(user.Username + " " + user.Password)
@@ -63,16 +88,20 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 			jsonErr := json.Unmarshal(body, &user)
 			if jsonErr != nil {
 				responseWriter.Write([]byte("{ERROR}"))
+				return
 			}
 			db := openDB()
 			defer closeDB(db)
 			result, err := db.Query("SELECT Username FROM users WHERE Username = ?", user.Username)
 			errorHandler(err)
 			var users []model.User
-			for result.Next() {
-				var user model.User
-				err = result.Scan(&user.Id, &user.Username, &user.Password)
-				users = append(users, user)
+			if result != nil {
+				for result.Next() {
+					var user model.User
+					err = result.Scan(&user.Id, &user.Username, &user.Password)
+					fmt.Println(user.Username, user.Password)
+					users = append(users, user)
+				}
 			}
 
 			if users != nil {
@@ -96,11 +125,13 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 		result, err := db.Query("SELECT * FROM books")
 		errorHandler(err)
 		var books []model.Book
-		for result.Next() {
-			var book model.Book
-			err = result.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
-			errorHandler(err)
-			books = append(books, book)
+		if result != nil {
+			for result.Next() {
+				var book model.Book
+				err = result.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
+				errorHandler(err)
+				books = append(books, book)
+			}
 		}
 		json, err := json.Marshal(books)
 		errorHandler(err)
@@ -118,11 +149,13 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 		result, err := db.Query("SELECT * FROM books WHERE Id = ?", request.URL.Query().Get("id"))
 		errorHandler(err)
 		var books []model.Book
-		for result.Next() {
-			var book model.Book
-			err = result.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
-			errorHandler(err)
-			books = append(books, book)
+		if result != nil {
+			for result.Next() {
+				var book model.Book
+				err = result.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
+				errorHandler(err)
+				books = append(books, book)
+			}
 		}
 		json, err := json.Marshal(books)
 		errorHandler(err)
@@ -162,11 +195,13 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 		result, err := db.Query("SELECT produktId,userId, amount FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
 		errorHandler(err)
 		var orders []model.Order
-		for result.Next() {
-			var order model.Order
-			err = result.Scan(&order.ProduktId, &order.UserId, &order.Amount)
-			errorHandler(err)
-			orders = append(orders, order)
+		if result != nil {
+			for result.Next() {
+				var order model.Order
+				err = result.Scan(&order.ProduktId, &order.UserId, &order.Amount)
+				errorHandler(err)
+				orders = append(orders, order)
+			}
 		}
 		json, err := json.Marshal(orders)
 		errorHandler(err)
@@ -182,7 +217,8 @@ func closeDB(db *sql.DB) {
 }
 
 func openDB() *sql.DB {
-	db, err := sql.Open("mysql", "root:admin@tcp(127.0.0.1:3306)/books")
+	db, err := sql.Open("mysql", "admin:password@tcp(mysql:3306)/books")
+	fmt.Println(db.Ping())
 	errorHandler(err)
 	return db
 }

@@ -1,8 +1,14 @@
-FROM golang:alpine
+FROM golang:1.19
 
 WORKDIR /SE_MIM22_WEBSHOP_MONO
 
-ADD . .
+COPY . .
+
+RUN go get -d -v ./...
+
+RUN go install -v ./...
+
+EXPOSE 8080
 
 RUN go mod download
 
