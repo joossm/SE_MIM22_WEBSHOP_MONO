@@ -16,7 +16,7 @@ const post, get = "POST", "GET"
 
 func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	case "GET":
+	case get:
 		db := openDB()
 		defer closeDB(db)
 		fmt.Println("init db was executed")
