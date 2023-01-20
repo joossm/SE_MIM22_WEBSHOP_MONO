@@ -3,5 +3,5 @@ version = 1
 [[analyzers]]
 name = "go"
 
-  [analyzers.meta]
-  import_root = "github.com/joossm/SE_MIM22_WEBSHOP_MONO"
+[analyzers.meta]
+import_root = "github.com/joossm/SE_MIM22_WEBSHOP_MONO"

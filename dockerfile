@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.19-alpine
 
 WORKDIR /SE_MIM22_WEBSHOP_MONO
 

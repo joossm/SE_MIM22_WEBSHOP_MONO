@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -12,45 +12,48 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const post = "POST"
+const post, get = "POST", "GET"
 
 func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
-	db := openDB()
-	defer closeDB(db)
-	fmt.Println("init db was executed")
+	switch request.Method {
+	case "GET":
+		db := openDB()
+		defer closeDB(db)
+		fmt.Println("init db was executed")
 
-	/*fmt.Println("Creating table books...")
-	err, _ := db.Query("USE books")
-	if err != nil {
-		fmt.Printf("Error Use Books: %s", err)
-	}*/
-
-	err, _ := db.Exec("CREATE TABLE IF NOT EXISTS `books` ( `Id` int(11) NOT NULL, `Titel` varchar(45) DEFAULT NULL, `EAN` varchar(45) DEFAULT NULL, `Content` varchar(45) DEFAULT NULL, `Price` float DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
-	if err != nil {
-		log.Printf("Error creating table: %s", err)
-	}
-	err, _ = db.Exec("CREATE TABLE IF NOT EXISTS `users` ( `Id` int(11) NOT NULL, `Username` varchar(45) DEFAULT NULL, `Password` varchar(45) DEFAULT NULL, `Firstname` varchar(45) DEFAULT NULL, `Lastname` varchar(45) DEFAULT NULL, `Housenumber` varchar(45) DEFAULT NULL, `Street` varchar(45) DEFAULT NULL, `Zipcode` varchar(45) DEFAULT NULL, `City` varchar(45) DEFAULT NULL, `Email` varchar(45) DEFAULT NULL, `Phone` varchar(45) DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
-	if err != nil {
-		log.Printf("Error creating table: %s", err)
-	}
-	err, _ = db.Exec("CREATE TABLE IF NOT EXISTS `orders` ( `id` int(11) NOT NULL AUTO_INCREMENT, `produktId` varchar(45) DEFAULT NULL, `userId` varchar(45) DEFAULT NULL, `amount` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
-	if err != nil {
-		log.Printf("Error creating table: %s", err)
+		_, err := db.Exec("CREATE TABLE IF NOT EXISTS `books` ( `Id` int(11) NOT NULL, `Titel` varchar(45) DEFAULT NULL, `EAN` varchar(45) DEFAULT NULL, `Content` varchar(45) DEFAULT NULL, `Price` float DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+		if err != nil {
+			log.Printf("Error creating table: %s", err)
+		}
+		_, err = db.Exec("CREATE TABLE IF NOT EXISTS `users` ( `Id` int(11) NOT NULL, `Username` varchar(45) DEFAULT NULL, `Password` varchar(45) DEFAULT NULL, `Firstname` varchar(45) DEFAULT NULL, `Lastname` varchar(45) DEFAULT NULL, `Housenumber` varchar(45) DEFAULT NULL, `Street` varchar(45) DEFAULT NULL, `Zipcode` varchar(45) DEFAULT NULL, `City` varchar(45) DEFAULT NULL, `Email` varchar(45) DEFAULT NULL, `Phone` varchar(45) DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+		if err != nil {
+			log.Printf("Error creating table: %s", err)
+		}
+		_, err = db.Exec("CREATE TABLE IF NOT EXISTS `orders` ( `id` int(11) NOT NULL AUTO_INCREMENT, `produktId` varchar(45) DEFAULT NULL, `userId` varchar(45) DEFAULT NULL, `amount` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
+		if err != nil {
+			log.Printf("Error creating table: %s", err)
+		}
+		_, err = responseWriter.Write([]byte("SUCCESS"))
+		errorHandler(err)
+		return
+	default:
+		_, err := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		errorHandler(err)
+		return
 	}
 
 }
 
 func Login(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	default:
-		responseWriter.Write([]byte("THIS IS A POST REQUEST"))
 	case post:
 		if request.Body != nil {
-			body, _ := ioutil.ReadAll(request.Body)
+			body, _ := io.ReadAll(request.Body)
 			user := model.User{}
 			jsonErr := json.Unmarshal(body, &user)
 			if jsonErr != nil {
-				responseWriter.Write([]byte("{ERROR}"))
+				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				errorHandler(responseErr)
 				return
 			}
 			db := openDB()
@@ -70,30 +73,37 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
-					responseWriter.Write([]byte("{true}"))
+					_, responseErr := responseWriter.Write([]byte("{true}"))
+					errorHandler(responseErr)
 					return
 				}
 			}
-			responseWriter.Write([]byte("{false}"))
+			_, responseErr := responseWriter.Write([]byte("{false}"))
+			errorHandler(responseErr)
 			return
 		}
-		responseWriter.Write([]byte("{false}"))
+		_, responseErr := responseWriter.Write([]byte("{false}"))
+		errorHandler(responseErr)
+		return
+	default:
+		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
 func Register(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	default:
-		responseWriter.Write([]byte("THIS IS A POST REQUEST"))
 	case post:
 		fmt.Println("Register was executed")
 		if request.Body != nil {
 			fmt.Println("Body not nil")
-			body, _ := ioutil.ReadAll(request.Body)
+			body, _ := io.ReadAll(request.Body)
 			user := model.User{}
 			jsonErr := json.Unmarshal(body, &user)
 			if jsonErr != nil {
-				responseWriter.Write([]byte("{ERROR}"))
+				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				errorHandler(responseErr)
 				return
 			}
 			fmt.Println("No json error")
@@ -112,7 +122,8 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 					users = append(users, user)
 				}
 				if users != nil {
-					responseWriter.Write([]byte("{already exists}"))
+					_, responseErr := responseWriter.Write([]byte("{already exists}"))
+					errorHandler(responseErr)
 					return
 				}
 			} else {
@@ -132,16 +143,21 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 					maxId, user.Username, user.Password, user.Firstname, user.Lastname, user.HouseNumber, user.Street, user.ZipCode, user.City, user.Email, user.Phone)
 				fmt.Println(res)
 				errorHandler(err)
-				responseWriter.Write([]byte("{true}"))
+				_, responseErr := responseWriter.Write([]byte("{true}"))
+				errorHandler(responseErr)
 				return
 			}
 		}
+	default:
+		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
 func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	case "GET":
+	case get:
 		db := openDB()
 		defer closeDB(db)
 		result, err := db.Query("SELECT * FROM books")
@@ -155,17 +171,21 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 				books = append(books, book)
 			}
 		}
-		json, err := json.Marshal(books)
+		jsonBook, err := json.Marshal(books)
 		errorHandler(err)
-		responseWriter.Write(json)
+		_, responseErr := responseWriter.Write(jsonBook)
+		errorHandler(responseErr)
+		return
 	default:
-		responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
 func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	case "GET":
+	case get:
 		db := openDB()
 		defer closeDB(db)
 		result, err := db.Query("SELECT * FROM books WHERE Id = ?", request.URL.Query().Get("id"))
@@ -179,11 +199,15 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 				books = append(books, book)
 			}
 		}
-		json, err := json.Marshal(books)
+		jsonBook, err := json.Marshal(books)
 		errorHandler(err)
-		responseWriter.Write(json)
+		_, responseErr := responseWriter.Write(jsonBook)
+		errorHandler(responseErr)
+		return
 	default:
-		responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
@@ -191,28 +215,33 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case post:
 		if request.Body != nil {
-			body, _ := ioutil.ReadAll(request.Body)
+			body, _ := io.ReadAll(request.Body)
 			order := model.Order{}
 			jsonErr := json.Unmarshal(body, &order)
 			if jsonErr != nil {
-				responseWriter.Write([]byte("{ERROR}"))
+				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				errorHandler(responseErr)
 				return
 			}
 			db := openDB()
 			defer closeDB(db)
-			db.Query("INSERT INTO orders (produktId, userId, Amount) VALUES (?, ?, ?)",
+			_, insertErr := db.Query("INSERT INTO orders (produktId, userId, Amount) VALUES (?, ?, ?)",
 				order.ProduktId, order.UserId, order.Amount)
-			responseWriter.Write([]byte("{true}"))
+			errorHandler(insertErr)
+			_, responseErr := responseWriter.Write([]byte("{true}"))
+			errorHandler(responseErr)
 			return
 		}
 	default:
-		responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
-	case "GET":
+	case get:
 		db := openDB()
 		defer closeDB(db)
 		result, err := db.Query("SELECT produktId,userId, amount FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
@@ -226,11 +255,15 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 				orders = append(orders, order)
 			}
 		}
-		json, err := json.Marshal(orders)
+		jsonOrder, err := json.Marshal(orders)
 		errorHandler(err)
-		responseWriter.Write(json)
+		_, responseErr := responseWriter.Write(jsonOrder)
+		errorHandler(responseErr)
+		return
 	default:
-		responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		errorHandler(responseErr)
+		return
 	}
 }
 
@@ -240,16 +273,11 @@ func closeDB(db *sql.DB) {
 }
 
 func openDB() *sql.DB {
-	fmt.Println("Opening DB 2")
+	fmt.Println("Opening DB")
 	db, err := sql.Open("mysql", "root:root@tcp(mysql:3306)/books")
 	fmt.Println(db.Ping())
 	fmt.Println(db.Stats())
-	fmt.Println("Opening DB 3")
 	db.SetMaxIdleConns(0)
-	//db, err = sql.Open("mysql", "root:root@tcp(docker.for.mac.localhost:3306)/books")
-	db.SetMaxIdleConns(0)
-	fmt.Println(db.Ping())
-	fmt.Println(db.Stats())
 	errorHandler(err)
 	return db
 }

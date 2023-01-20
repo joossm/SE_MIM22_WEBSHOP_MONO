@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	// Server
 	var serveMux = http.NewServeMux()
 	serveMux.HandleFunc("/login", handler.Login)
 	serveMux.HandleFunc("/register", handler.Register)
@@ -18,7 +17,23 @@ func main() {
 	serveMux.HandleFunc("/placeOrder", handler.PlaceOrder)
 	serveMux.HandleFunc("/getOrdersByUserId", handler.GetOrdersByUserId)
 	serveMux.HandleFunc("/initDatabase", handler.InitDatabase)
-	log.Printf("About to listen on 8080. Go to http://127.0.0.1:8080/register\n Go to http://127.0.0.1:8080/login")
+	log.Printf("\n\n\tMONOLITH BOOKSTORE\n\n" +
+		"About to listen on Port: 8080." +
+		"\n\nSUPPORTED REQUESTS:" +
+		"\nGET:" +
+		"\nGet All Books: http://127.0.0.1:8440/getAllBooks" +
+		"\nGet Book By ID: http://127.0.0.1:8440/getBookById?id=1 requiers a url parameter id" +
+		"\nGo to http://127.0.0.1:8450/init to initialise the Database." +
+		"\nGet Order By ID: http://127.0.0.1:8443/getOrdersByUserId?id=1 requiers a url parameter id" +
+		"\n\nPOST:" +
+		"\nLogin on: http://127.0.0.1:8441/login requires a JSON Body with the following format:\n" +
+		"{\n    \"Username\": \"mmuster\",\n    \"Password\": \"password\"\n}" +
+		"\nRegister on: http://127.0.0.1:8442/register requires a JSON Body with the following format:\n" +
+		"{\n    \"Username\": \"mmuster\",\n    \"Password\": \"password\",\n    \"Firstname\": \"Max\",\n   " +
+		" \"Lastname\": \"Muster\",\n    \"Housenumber\": \"1\",\n    \"Street\": \"Musterstr.\",\n  " +
+		"  \"Zipcode\": \"01234\",\n    \"City\": \"Musterstadt\",\n    \"Email\": \"max.muster@mail.com\",\n  " +
+		"  \"Phone\": \"012345678910\"\n  }" +
+		"\nPlace Order: http://127.0.0.1:8443/placeOrder requiers a Body with following json:\n{\n    \"produktId\": \"1\",\n    \"userId\": \"1\",\n    \"amount\": \"1\"\n}")
 	server := &http.Server{
 		Addr:              ":8080",
 		ReadHeaderTimeout: 3 * time.Second,
