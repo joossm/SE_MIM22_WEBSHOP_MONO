@@ -1,6 +1,7 @@
 #  --------------------------------------------------------------------------------
 version: '3.8'
 services:
+  #  Run if the monolith is used without the database-service
   #  mysql:
   #    networks:
   #      - bookstore
