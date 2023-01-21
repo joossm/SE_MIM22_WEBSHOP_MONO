@@ -1,8 +1,8 @@
 package model
 
 type Order struct {
-	id        int
+	Id        int
 	ProduktId string
-	UserId    string
 	Amount    string
+	UserId    string
 }

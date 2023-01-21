@@ -1,15 +1,14 @@
 package handler
 
 import (
+	"SE_MIM22_WEBSHOP_MONO/model"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"io"
 	"log"
 	"net/http"
-
-	"SE_MIM22_WEBSHOP_MONO/model"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 const post, get = "POST", "GET"
@@ -277,26 +276,51 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 }
 
+type BookAndAmount struct {
+	Book   model.Book
+	Amount string
+}
+
+type orderResult struct {
+	BasketID      string
+	BookAndAmount []BookAndAmount
+	UserId        string
+}
+
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
 
 	switch request.Method {
 	case get:
 		db := openDB()
 		defer closeDB(db)
-		result, err := db.Query("SELECT produktId,userId, amount FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
+		result, err := db.Query("SELECT id, produktId, userId, amount FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
 		errorHandler(err)
 		var orders []model.Order
 		if result != nil {
 			for result.Next() {
 				var order model.Order
-				err = result.Scan(&order.ProduktId, &order.UserId, &order.Amount)
+				err = result.Scan(&order.Id, &order.ProduktId, &order.UserId, &order.Amount)
 				errorHandler(err)
 				orders = append(orders, order)
 			}
 		}
-		jsonOrder, err := json.Marshal(orders)
+		resultBook, err := db.Query("SELECT * FROM books WHERE Id = ?", request.URL.Query().Get("id"))
 		errorHandler(err)
-		_, responseErr := responseWriter.Write(jsonOrder)
+		var books []model.Book
+		if resultBook != nil {
+			for resultBook.Next() {
+				var book model.Book
+				err = resultBook.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
+				errorHandler(err)
+				books = append(books, book)
+			}
+		}
+		bookOrder := orderResult{BasketID: string(orders[0].Id),
+			BookAndAmount: []BookAndAmount{{Book: books[0], Amount: orders[0].Amount}},
+			UserId:        orders[0].UserId}
+		jsonBook, err := json.Marshal(bookOrder)
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(jsonBook)
 		errorHandler(responseErr)
 		return
 	default:
