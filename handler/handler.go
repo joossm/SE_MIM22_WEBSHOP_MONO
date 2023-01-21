@@ -15,8 +15,6 @@ import (
 const post, get = "POST", "GET"
 
 func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case get:
@@ -38,14 +36,12 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 		}
 		js, err := json.Marshal("Success")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -54,8 +50,6 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func Login(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case post:
@@ -87,7 +81,6 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
-					responseWriter.Header().Set("Content-Type", "application/json")
 					js, err := json.Marshal("true")
 					errorHandler(err)
 					_, responseErr := responseWriter.Write(js)
@@ -97,21 +90,18 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 			}
 			js, err := json.Marshal("false")
 			errorHandler(err)
-			responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 			_, responseErr := responseWriter.Write(js)
 			errorHandler(responseErr)
 			return
 		}
 		js, err := json.Marshal("false")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A POST REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -122,9 +112,6 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 responseWriter.Write(js)*/
 
 func Register(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
-
 	switch request.Method {
 	case post:
 		fmt.Println("Register was executed")
@@ -158,7 +145,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 				if users != nil {
 					js, err := json.Marshal("already exists")
 					errorHandler(err)
-					responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
 					return
@@ -180,7 +166,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 					maxId, user.Username, user.Password, user.Firstname, user.Lastname, user.HouseNumber, user.Street, user.ZipCode, user.City, user.Email, user.Phone)
 				fmt.Println(res)
 				errorHandler(err)
-				responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 				js, err := json.Marshal("true")
 				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
@@ -190,7 +175,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 	default:
 		js, err := json.Marshal("THIS IS A POST REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -198,8 +182,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -217,14 +199,12 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 		}
 		jsonBook, err := json.Marshal(books)
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(jsonBook)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -232,8 +212,6 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case get:
@@ -252,14 +230,12 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 		}
 		jsonBook, err := json.Marshal(books)
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(jsonBook)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -267,8 +243,6 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case post:
@@ -279,7 +253,6 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 			if jsonErr != nil {
 				js, err := json.Marshal("Error")
 				errorHandler(err)
-				responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
 				return
@@ -291,7 +264,6 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 			errorHandler(insertErr)
 			js, err := json.Marshal("true")
 			errorHandler(err)
-			responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 			_, responseErr := responseWriter.Write(js)
 			errorHandler(responseErr)
 			return
@@ -299,7 +271,6 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 	default:
 		js, err := json.Marshal("THIS IS A POST REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -307,8 +278,6 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
-	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case get:
@@ -327,14 +296,12 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 		}
 		jsonOrder, err := json.Marshal(orders)
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(jsonOrder)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
-		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -366,14 +333,4 @@ func errorHandler(err error) {
 	if err != nil {
 		fmt.Println(err)
 	}
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Methods", "*")
-	(*w).Header().Set("Access-Control-Allow-Headers", "*")
-	(*w).Header().Set("Referer", "No-referrer")
-	(*w).Header().Set("Content-Type", "application/json")
-	(*w).Header().Set("Access-Control-Allow-Origin", "*/*")
-	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
-	(*w).Header().Set("Accept", "*/*")
 }
