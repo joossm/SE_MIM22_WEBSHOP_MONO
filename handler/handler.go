@@ -81,7 +81,7 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
-					js, err := json.Marshal("true")
+					js, err := json.Marshal(user)
 					errorHandler(err)
 					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
