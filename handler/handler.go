@@ -199,7 +199,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 
 func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	enableCors(&responseWriter)
-	responseWriter.Header().Set("Content-Type", "application/json")
 
 	switch request.Method {
 	case get:
@@ -374,5 +373,6 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Methods", "*")
 	(*w).Header().Set("Access-Control-Allow-Headers", "*")
 	(*w).Header().Set("Referer", "No-referrer")
+	(*w).Header().Set("Content-Type", "application/json")
 
 }
