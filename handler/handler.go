@@ -151,7 +151,9 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 					users = append(users, user)
 				}
 				if users != nil {
-					_, responseErr := responseWriter.Write([]byte("{already exists}"))
+					js, err := json.Marshal("already exists")
+					errorHandler(err)
+					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
 					return
 				}
@@ -173,7 +175,6 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(res)
 				errorHandler(err)
 				responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
-				json.NewEncoder(responseWriter).Encode(user)
 				js, err := json.Marshal("true")
 				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
