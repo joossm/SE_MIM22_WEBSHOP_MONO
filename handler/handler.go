@@ -36,12 +36,16 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Printf("Error creating table: %s", err)
 		}
-		_, err = responseWriter.Write([]byte("SUCCESS"))
+		js, err := json.Marshal("Success")
 		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
+		errorHandler(responseErr)
 		return
 	default:
-		_, err := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
+		errorHandler(responseErr)
 		return
 	}
 
@@ -58,7 +62,9 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 			user := model.User{}
 			jsonErr := json.Unmarshal(body, &user)
 			if jsonErr != nil {
-				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				js, err := json.Marshal("Error")
+				errorHandler(err)
+				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
 				return
 			}
@@ -80,20 +86,28 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
 					responseWriter.Header().Set("Content-Type", "application/json")
-					_, responseErr := responseWriter.Write([]byte("{true}"))
+					js, err := json.Marshal("true")
+					errorHandler(err)
+					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
 					return
 				}
 			}
-			_, responseErr := responseWriter.Write([]byte("{false}"))
+			js, err := json.Marshal("false")
+			errorHandler(err)
+			_, responseErr := responseWriter.Write(js)
 			errorHandler(responseErr)
 			return
 		}
-		_, responseErr := responseWriter.Write([]byte("{false}"))
+		js, err := json.Marshal("false")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		js, err := json.Marshal("THIS IS A POST REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
@@ -115,7 +129,9 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 			user := model.User{}
 			jsonErr := json.Unmarshal(body, &user)
 			if jsonErr != nil {
-				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				js, err := json.Marshal("Error")
+				errorHandler(err)
+				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
 				return
 			}
@@ -158,13 +174,16 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 				errorHandler(err)
 				responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 				json.NewEncoder(responseWriter).Encode(user)
-				_, responseErr := responseWriter.Write([]byte("{true}"))
+				js, err := json.Marshal("true")
+				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
 				return
 			}
 		}
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		js, err := json.Marshal("THIS IS A POST REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
@@ -195,7 +214,9 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 		errorHandler(responseErr)
 		return
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		js, err := json.Marshal("THIS IS A GET REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
@@ -226,7 +247,9 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 		errorHandler(responseErr)
 		return
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		js, err := json.Marshal("THIS IS A GET REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
@@ -243,7 +266,9 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 			order := model.Order{}
 			jsonErr := json.Unmarshal(body, &order)
 			if jsonErr != nil {
-				_, responseErr := responseWriter.Write([]byte("{ERROR}"))
+				js, err := json.Marshal("Error")
+				errorHandler(err)
+				_, responseErr := responseWriter.Write(js)
 				errorHandler(responseErr)
 				return
 			}
@@ -252,12 +277,16 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 			_, insertErr := db.Query("INSERT INTO orders (produktId, userId, Amount) VALUES (?, ?, ?)",
 				order.ProduktId, order.UserId, order.Amount)
 			errorHandler(insertErr)
-			_, responseErr := responseWriter.Write([]byte("{true}"))
+			js, err := json.Marshal("true")
+			errorHandler(err)
+			_, responseErr := responseWriter.Write(js)
 			errorHandler(responseErr)
 			return
 		}
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A POST REQUEST"))
+		js, err := json.Marshal("THIS IS A POST REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
@@ -288,7 +317,9 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 		errorHandler(responseErr)
 		return
 	default:
-		_, responseErr := responseWriter.Write([]byte("THIS IS A GET REQUEST"))
+		js, err := json.Marshal("THIS IS A GET REQUEST")
+		errorHandler(err)
+		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	}
