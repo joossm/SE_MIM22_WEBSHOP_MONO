@@ -315,7 +315,7 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 				books = append(books, book)
 			}
 		}
-		bookOrder := orderResult{BasketID: string(orders[0].Id),
+		bookOrder := orderResult{BasketID: orders[0].Id,
 			Books:  []BookAndAmount{{Book: books[0], Amount: orders[0].Amount}},
 			UserId: orders[0].UserId}
 		jsonBook, err := json.Marshal(bookOrder)
