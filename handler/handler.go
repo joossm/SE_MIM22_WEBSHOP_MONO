@@ -199,7 +199,7 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 
 func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	enableCors(&responseWriter)
-
+	responseWriter.Header().Set("Content-Type", "application/json")
 	switch request.Method {
 	case get:
 		db := openDB()
