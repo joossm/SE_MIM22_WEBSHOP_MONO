@@ -38,12 +38,14 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 		}
 		js, err := json.Marshal("Success")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -95,18 +97,21 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 			}
 			js, err := json.Marshal("false")
 			errorHandler(err)
+			responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 			_, responseErr := responseWriter.Write(js)
 			errorHandler(responseErr)
 			return
 		}
 		js, err := json.Marshal("false")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
 	default:
 		js, err := json.Marshal("THIS IS A POST REQUEST")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -153,6 +158,7 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 				if users != nil {
 					js, err := json.Marshal("already exists")
 					errorHandler(err)
+					responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
 					return
@@ -184,6 +190,7 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 	default:
 		js, err := json.Marshal("THIS IS A POST REQUEST")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -218,6 +225,7 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -252,6 +260,7 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 	default:
 		js, err := json.Marshal("THIS IS A GET REQUEST")
 		errorHandler(err)
+		responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		_, responseErr := responseWriter.Write(js)
 		errorHandler(responseErr)
 		return
@@ -362,8 +371,8 @@ func errorHandler(err error) {
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE, PATCH")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-User-Agent, X-File-Name")
+	(*w).Header().Set("Access-Control-Allow-Methods", "*")
+	(*w).Header().Set("Access-Control-Allow-Headers", "*")
 	(*w).Header().Set("Referer", "No-referrer")
 
 }
