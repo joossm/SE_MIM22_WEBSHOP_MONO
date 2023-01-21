@@ -145,6 +145,8 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 					maxId, user.Username, user.Password, user.Firstname, user.Lastname, user.HouseNumber, user.Street, user.ZipCode, user.City, user.Email, user.Phone)
 				fmt.Println(res)
 				errorHandler(err)
+				responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+				json.NewEncoder(responseWriter).Encode(user)
 				_, responseErr := responseWriter.Write([]byte("{true}"))
 				errorHandler(responseErr)
 				return
