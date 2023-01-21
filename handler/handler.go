@@ -15,6 +15,9 @@ import (
 const post, get = "POST", "GET"
 
 func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -45,6 +48,9 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func Login(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case post:
 		if request.Body != nil {
@@ -73,8 +79,7 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
-					responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
-					json.NewEncoder(responseWriter).Encode(user)
+					responseWriter.Header().Set("Content-Type", "application/json")
 					_, responseErr := responseWriter.Write([]byte("{true}"))
 					errorHandler(responseErr)
 					return
@@ -94,7 +99,13 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 }
 
+/*responseWriter.Header().Set("Content-Type", "application/json")
+responseWriter.Write(js)*/
+
 func Register(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case post:
 		fmt.Println("Register was executed")
@@ -160,6 +171,9 @@ func Register(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -188,6 +202,9 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -216,6 +233,9 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case post:
 		if request.Body != nil {
@@ -244,6 +264,9 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
+	enableCors(&responseWriter)
+	responseWriter.Header().Set("Content-Type", "application/json")
+
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -296,4 +319,8 @@ func errorHandler(err error) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
