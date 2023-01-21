@@ -282,9 +282,9 @@ type BookAndAmount struct {
 }
 
 type orderResult struct {
-	BasketID      string
-	BookAndAmount []BookAndAmount
-	UserId        string
+	BasketID string
+	Books    []BookAndAmount
+	UserId   string
 }
 
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
@@ -316,8 +316,8 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 			}
 		}
 		bookOrder := orderResult{BasketID: string(orders[0].Id),
-			BookAndAmount: []BookAndAmount{{Book: books[0], Amount: orders[0].Amount}},
-			UserId:        orders[0].UserId}
+			Books:  []BookAndAmount{{Book: books[0], Amount: orders[0].Amount}},
+			UserId: orders[0].UserId}
 		jsonBook, err := json.Marshal(bookOrder)
 		errorHandler(err)
 		_, responseErr := responseWriter.Write(jsonBook)
