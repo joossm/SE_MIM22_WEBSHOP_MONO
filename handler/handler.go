@@ -228,7 +228,7 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 				books = append(books, book)
 			}
 		}
-		jsonBook, err := json.Marshal(books)
+		jsonBook, err := json.Marshal(books[0])
 		errorHandler(err)
 		_, responseErr := responseWriter.Write(jsonBook)
 		errorHandler(responseErr)
