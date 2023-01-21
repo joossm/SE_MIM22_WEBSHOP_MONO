@@ -17,6 +17,7 @@ func main() {
 	serveMux.HandleFunc("/placeOrder", handler.PlaceOrder)
 	serveMux.HandleFunc("/getOrdersByUserId", handler.GetOrdersByUserId)
 	serveMux.HandleFunc("/initDatabase", handler.InitDatabase)
+	serveMux.HandleFunc("/error", handler.Error)
 	log.Printf("\n\n\tMONOLITH BOOKSTORE\n\n" +
 		"About to listen on Port: 8080." +
 		"\n\nSUPPORTED REQUESTS:" +
@@ -25,6 +26,7 @@ func main() {
 		"\nGet Book By ID: http://127.0.0.1:8440/getBookById?id=1 requiers a url parameter id" +
 		"\nGo to http://127.0.0.1:8450/init to initialise the Database." +
 		"\nGet Order By ID: http://127.0.0.1:8443/getOrdersByUserId?id=1 requiers a url parameter id" +
+		"\nCreate Error on: http://127.0.0.1:8442/error\n" +
 		"\n\nPOST:" +
 		"\nLogin on: http://127.0.0.1:8441/login requires a JSON Body with the following format:\n" +
 		"{\n    \"Username\": \"mmuster\",\n    \"Password\": \"password\"\n}" +
