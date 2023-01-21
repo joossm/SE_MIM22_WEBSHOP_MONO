@@ -66,13 +66,13 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 			}
 			db := openDB()
 			defer closeDB(db)
-			result, err := db.Query("SELECT Id, Username, Password FROM users WHERE Username = ? AND Password = ?", user.Username, user.Password)
+			result, err := db.Query("SELECT * FROM users WHERE Username = ? AND Password = ?", user.Username, user.Password)
 			errorHandler(err)
 			var users []model.User
 			if result != nil {
 				for result.Next() {
 					var user model.User
-					err = result.Scan(&user.Id, &user.Username, &user.Password)
+					err = result.Scan(&user.Id, &user.Username, &user.Password, &user.Firstname, &user.Lastname, &user.HouseNumber, &user.Street, &user.ZipCode, &user.City, &user.Email, &user.Phone)
 					errorHandler(err)
 					users = append(users, user)
 				}
@@ -81,7 +81,7 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
-					js, err := json.Marshal(user)
+					js, err := json.Marshal(iUser)
 					errorHandler(err)
 					_, responseErr := responseWriter.Write(js)
 					errorHandler(responseErr)
