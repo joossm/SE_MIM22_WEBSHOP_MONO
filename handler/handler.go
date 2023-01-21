@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const post, get = "POST", "GET"
@@ -304,23 +305,52 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 				orders = append(orders, order)
 			}
 		}
-		resultBook, err := db.Query("SELECT * FROM books WHERE Id = ?", request.URL.Query().Get("id"))
-		errorHandler(err)
-		var books []model.Book
-		if resultBook != nil {
-			for resultBook.Next() {
-				var book model.Book
-				err = resultBook.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
-				errorHandler(err)
-				books = append(books, book)
+		// find orders from same customer
+		var orderFromSameCustomer []model.Order
+		for _, order := range orders {
+			if order.UserId == request.URL.Query().Get("id") {
+				orderFromSameCustomer = append(orderFromSameCustomer, order)
 			}
 		}
-		bookOrder := orderResult{BasketID: orders[0].Id,
-			Books:  []BookAndAmount{{Book: books[0], Amount: orders[0].Amount}},
-			UserId: orders[0].UserId}
-		jsonBook, err := json.Marshal(bookOrder)
+		// sum amount of same books from same customer
+		var orderFromSameCustomerWithSummedAmount []model.Order
+		for _, order := range orderFromSameCustomer {
+			for i, order2 := range orderFromSameCustomer {
+				if order.ProduktId == order2.ProduktId {
+					orderA1, _ := strconv.Atoi(order.Amount)
+					orderA2, _ := strconv.Atoi(order2.Amount)
+					orderAGesamt := orderA1 + orderA2
+					order.Amount = strconv.Itoa(orderAGesamt)
+					// remove doubled order from order
+					orderFromSameCustomer = append(orderFromSameCustomer[:i], orderFromSameCustomer[i+1:]...)
+				}
+			}
+		}
+		orderFromSameCustomerWithSummedAmount = append(orderFromSameCustomerWithSummedAmount, orderFromSameCustomer...)
+		var results []orderResult
+		for _, order := range orderFromSameCustomerWithSummedAmount {
+			// get book from order
+			var books []model.Book
+			resultBook, err := db.Query("SELECT * FROM books WHERE Id = ?", order.ProduktId)
+			errorHandler(err)
+			if resultBook != nil {
+				for resultBook.Next() {
+					var book model.Book
+					err = resultBook.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
+					errorHandler(err)
+					books = append(books, book)
+				}
+			}
+			var result orderResult
+			result.BasketID = order.Id
+			result.UserId = order.UserId
+			result.Books = append(result.Books, BookAndAmount{Book: books[0], Amount: order.Amount})
+			results = append(results, result)
+		}
+
+		jsonResults, err := json.Marshal(results)
 		errorHandler(err)
-		_, responseErr := responseWriter.Write(jsonBook)
+		_, responseErr := responseWriter.Write(jsonResults)
 		errorHandler(responseErr)
 		return
 	default:
