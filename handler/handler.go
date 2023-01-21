@@ -374,9 +374,4 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Referer", "No-referrer")
 	(*w).Header().Set("Content-Type", "application/json")
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Add("Access-Control-Allow-Methods", "*")
-	(*w).Header().Add("Access-Control-Allow-Headers", "*")
-	(*w).Header().Add("Referer", "No-referrer")
-	(*w).Header().Add("Content-Type", "application/json")
-	(*w).Header().Add("Access-Control-Allow-Origin", "*")
 }
