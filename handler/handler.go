@@ -73,6 +73,8 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 				fmt.Println(user.Username + " " + user.Password)
 				fmt.Println(iUser.Username + " " + iUser.Password)
 				if iUser.Username == user.Username && iUser.Password == user.Password {
+					responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+					json.NewEncoder(responseWriter).Encode(user)
 					_, responseErr := responseWriter.Write([]byte("{true}"))
 					errorHandler(responseErr)
 					return
