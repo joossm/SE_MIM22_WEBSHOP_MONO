@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 const post, get = "POST", "GET"
@@ -294,7 +293,7 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 	case get:
 		db := openDB()
 		defer closeDB(db)
-		result, err := db.Query("SELECT id, produktId, userId, amount FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
+		result, err := db.Query("SELECT * FROM orders WHERE userId = ?", request.URL.Query().Get("id"))
 		errorHandler(err)
 		var orders []model.Order
 		if result != nil {
@@ -305,52 +304,31 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 				orders = append(orders, order)
 			}
 		}
-		// find orders from same customer
-		var orderFromSameCustomer []model.Order
+		var orderResults []orderResult
 		for _, order := range orders {
-			if order.UserId == request.URL.Query().Get("id") {
-				orderFromSameCustomer = append(orderFromSameCustomer, order)
-			}
-		}
-		// sum amount of same books from same customer
-		var orderFromSameCustomerWithSummedAmount []model.Order
-		for _, order := range orderFromSameCustomer {
-			for i, order2 := range orderFromSameCustomer {
-				if order.ProduktId == order2.ProduktId {
-					orderA1, _ := strconv.Atoi(order.Amount)
-					orderA2, _ := strconv.Atoi(order2.Amount)
-					orderAGesamt := orderA1 + orderA2
-					order.Amount = strconv.Itoa(orderAGesamt)
-					// remove doubled order from order
-					orderFromSameCustomer = append(orderFromSameCustomer[:i], orderFromSameCustomer[i+1:]...)
-				}
-			}
-		}
-		orderFromSameCustomerWithSummedAmount = append(orderFromSameCustomerWithSummedAmount, orderFromSameCustomer...)
-		var results []orderResult
-		for _, order := range orderFromSameCustomerWithSummedAmount {
-			// get book from order
-			var books []model.Book
-			resultBook, err := db.Query("SELECT * FROM books WHERE Id = ?", order.ProduktId)
+			var orderResultItem orderResult
+			var bookAndAmount BookAndAmount
+			bookAndAmount.Amount = order.Amount
+			result, err := db.Query("SELECT * FROM books WHERE Id = ?", order.ProduktId)
 			errorHandler(err)
-			if resultBook != nil {
-				for resultBook.Next() {
+			if result != nil {
+				for result.Next() {
 					var book model.Book
-					err = resultBook.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
+					err = result.Scan(&book.Id, &book.Titel, &book.EAN, &book.Content, &book.Price)
 					errorHandler(err)
-					books = append(books, book)
+					bookAndAmount.Book = book
+					bookAndAmount.Amount = order.Amount
 				}
 			}
-			var result orderResult
-			result.BasketID = order.Id
-			result.UserId = order.UserId
-			result.Books = append(result.Books, BookAndAmount{Book: books[0], Amount: order.Amount})
-			results = append(results, result)
-		}
+			orderResultItem.BasketID = order.Id
+			orderResultItem.UserId = order.UserId
+			orderResultItem.Books = append(orderResultItem.Books, bookAndAmount)
+			orderResults = append(orderResults, orderResultItem)
 
-		jsonResults, err := json.Marshal(results)
-		errorHandler(err)
-		_, responseErr := responseWriter.Write(jsonResults)
+		}
+		orderResultJson, jsonErr := json.Marshal(orderResults)
+		errorHandler(jsonErr)
+		_, responseErr := responseWriter.Write(orderResultJson)
 		errorHandler(responseErr)
 		return
 	default:
@@ -360,6 +338,15 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 		errorHandler(responseErr)
 		return
 	}
+}
+
+func contains(sum []model.Order, order model.Order) bool {
+	for _, order2 := range sum {
+		if order2.Id == order.Id {
+			return true
+		}
+	}
+	return false
 }
 
 func Error(responseWriter http.ResponseWriter, request *http.Request) {
@@ -375,6 +362,7 @@ func closeDB(db *sql.DB) {
 
 func openDB() *sql.DB {
 	fmt.Println("Opening DB")
+	//TODO change to mysql
 	db, err := sql.Open("mysql", "root:root@tcp(mysql:3306)/books")
 	fmt.Println(db.Ping())
 	fmt.Println(db.Stats())

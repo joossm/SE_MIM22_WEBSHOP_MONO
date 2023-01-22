@@ -2,20 +2,20 @@
 version: '3.8'
 services:
   #  Run if the monolith is used without the database-service
-#  mysql:
-#    networks:
-#      - bookstore
-#    extra_hosts:
-#      - "mysql:172.0.0.1"
-#    image: mysql:8.0
-#    container_name: mysql
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root
-#      MYSQL_DATABASE: books
-#      MYSQL_USER: admin
-#      MYSQL_PASSWORD: password
-#    ports:
-#      - "3306:3306"
+  mysql:
+    networks:
+      - bookstore
+    extra_hosts:
+      - "mysql:172.0.0.1"
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: books
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
 
   monolith:
     networks:
