@@ -18,6 +18,19 @@ func main() {
 	serveMux.HandleFunc("/getOrdersByUserId", handler.GetOrdersByUserId)
 	serveMux.HandleFunc("/initDatabase", handler.InitDatabase)
 	serveMux.HandleFunc("/error", handler.Error)
+	printStartUP()
+	handler := cors.Default().Handler(serveMux)
+	server := &http.Server{
+		Addr:              ":8080",
+		ReadHeaderTimeout: 3 * time.Second,
+		WriteTimeout:      3 * time.Second,
+		IdleTimeout:       3 * time.Second,
+		Handler:           handler,
+	}
+	log.Fatal(server.ListenAndServe())
+}
+
+func printStartUP() {
 	log.Printf("\n\n\tMONOLITH BOOKSTORE\n\n" +
 		"About to listen on Port: 8080." +
 		"\n\nSUPPORTED REQUESTS:" +
@@ -36,13 +49,4 @@ func main() {
 		"  \"Zipcode\": \"01234\",\n    \"City\": \"Musterstadt\",\n    \"Email\": \"max.muster@mail.com\",\n  " +
 		"  \"Phone\": \"012345678910\"\n  }" +
 		"\nPlace Order: http://127.0.0.1:8080/placeOrder requiers a Body with following json:\n{\n    \"produktId\": \"1\",\n    \"userId\": \"1\",\n    \"amount\": \"1\"\n}")
-	handler := cors.Default().Handler(serveMux)
-	server := &http.Server{
-		Addr:              ":8080",
-		ReadHeaderTimeout: 3 * time.Second,
-		WriteTimeout:      3 * time.Second,
-		IdleTimeout:       3 * time.Second,
-		Handler:           handler,
-	}
-	log.Fatal(server.ListenAndServe())
 }

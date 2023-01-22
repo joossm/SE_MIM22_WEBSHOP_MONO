@@ -14,13 +14,11 @@ import (
 const post, get = "POST", "GET"
 
 func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
-
 	switch request.Method {
 	case get:
 		db := openDB()
 		defer closeDB(db)
-		fmt.Println("init db was executed")
-
+		fmt.Println("Initialization of the Database was executed")
 		_, err := db.Exec("CREATE TABLE IF NOT EXISTS `books` ( `Id` int(11) NOT NULL, `Titel` varchar(45) DEFAULT NULL, `EAN` varchar(45) DEFAULT NULL, `Content` varchar(45) DEFAULT NULL, `Price` float DEFAULT NULL, PRIMARY KEY (`Id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;")
 		if err != nil {
 			log.Printf("Error creating table: %s", err)
@@ -45,11 +43,9 @@ func InitDatabase(responseWriter http.ResponseWriter, request *http.Request) {
 		errorHandler(responseErr)
 		return
 	}
-
 }
 
 func Login(responseWriter http.ResponseWriter, request *http.Request) {
-
 	switch request.Method {
 	case post:
 		if request.Body != nil {
@@ -106,9 +102,6 @@ func Login(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 }
-
-/*responseWriter.Header().Set("Content-Type", "application/json")
-responseWriter.Write(js)*/
 
 func Register(responseWriter http.ResponseWriter, request *http.Request) {
 	switch request.Method {
@@ -211,7 +204,6 @@ func GetAllBooks(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
-
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -242,7 +234,6 @@ func GetBookByID(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
-
 	switch request.Method {
 	case post:
 		if request.Body != nil {
@@ -276,19 +267,7 @@ func PlaceOrder(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 }
 
-type BookAndAmount struct {
-	Book   model.Book
-	Amount string
-}
-
-type orderResult struct {
-	BasketID string
-	Books    []BookAndAmount
-	UserId   string
-}
-
 func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request) {
-
 	switch request.Method {
 	case get:
 		db := openDB()
@@ -304,10 +283,10 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 				orders = append(orders, order)
 			}
 		}
-		var orderResults []orderResult
+		var orderResults []model.OrderResult
 		for _, order := range orders {
-			var orderResultItem orderResult
-			var bookAndAmount BookAndAmount
+			var orderResultItem model.OrderResult
+			var bookAndAmount model.BookAndAmount
 			bookAndAmount.Amount = order.Amount
 			result, err := db.Query("SELECT * FROM books WHERE Id = ?", order.ProduktId)
 			errorHandler(err)
@@ -324,7 +303,6 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 			orderResultItem.UserId = order.UserId
 			orderResultItem.Books = append(orderResultItem.Books, bookAndAmount)
 			orderResults = append(orderResults, orderResultItem)
-
 		}
 		orderResultJson, jsonErr := json.Marshal(orderResults)
 		errorHandler(jsonErr)
@@ -340,15 +318,6 @@ func GetOrdersByUserId(responseWriter http.ResponseWriter, request *http.Request
 	}
 }
 
-func contains(sum []model.Order, order model.Order) bool {
-	for _, order2 := range sum {
-		if order2.Id == order.Id {
-			return true
-		}
-	}
-	return false
-}
-
 func Error(responseWriter http.ResponseWriter, request *http.Request) {
 	// This is just a test function to create an error
 	Error(responseWriter, request)
@@ -362,7 +331,6 @@ func closeDB(db *sql.DB) {
 
 func openDB() *sql.DB {
 	fmt.Println("Opening DB")
-	//TODO change to mysql
 	db, err := sql.Open("mysql", "root:root@tcp(mysql:3306)/books")
 	fmt.Println(db.Ping())
 	fmt.Println(db.Stats())
@@ -373,6 +341,7 @@ func openDB() *sql.DB {
 
 func errorHandler(err error) {
 	if err != nil {
+		//panic(err) is not required, but it is a good idea to panic on error
 		fmt.Println(err)
 	}
 }
